@@ -83,9 +83,12 @@ analytics/
   .env.example          # copy to .env
   entrypoint.sh         # SQL init on first boot
   init-scripts/         # schema/seed (dev sample for now)
+  docs/                 # design docs (ERD, etc.)
   backned/              # NestJS API
   pannel-app/           # Next.js dashboard
 ```
+
+Data model: [docs/erd.md](docs/erd.md)
 
 ## Troubleshooting
 
