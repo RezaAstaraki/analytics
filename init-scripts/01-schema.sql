@@ -1,0 +1,19 @@
+IF DB_ID(N'TestDB') IS NULL
+BEGIN
+    CREATE DATABASE TestDB;
+END
+GO
+
+USE TestDB;
+GO
+
+IF OBJECT_ID(N'dbo.Users', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Users (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Name NVARCHAR(100) NOT NULL,
+        Email NVARCHAR(200) UNIQUE,
+        CreatedAt DATETIME DEFAULT GETDATE()
+    );
+END
+GO

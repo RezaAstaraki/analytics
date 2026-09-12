@@ -1,14 +1,53 @@
 services:
-  web:
-    image: nginx:latest
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    restart: unless-stopped
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      MSSQL_PID: "Developer"
+
     ports:
-      - "80:80"
+      - "1433:1433"
+
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    networks:
-      - webnet
-  db:
-    image: mysql:latest
+      - sqlserver-data:/var/opt/mssql
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+      - ./entrypoint.sh:/entrypoint.sh:ro
+
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/opt/mssql-tools18/bin/sqlcmd",
+          "-S",
+          "localhost",
+          "-U",
+          "sa",
+          "-P",
+          "${MSSQL_SA_PASSWORD}",
+          "-C",
+          "-Q",
+          "SELECT 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    restart: unless-stopped
     ports:
-      - "3306:3306"
-    volumes:
+      - "8080:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+volumes:
+  sqlserver-data:
